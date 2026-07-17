@@ -59,4 +59,34 @@ JSON;
         $patch->apply($original);
         $this->assertEquals($newJson, $original);
     }
+
+    /**
+     * Avoid PathException with objects like {"+1": ...}
+     *
+     * @throws \Swaggest\JsonDiff\Exception
+     */
+    public function testSignedIntegerLikeKey()
+    {
+        $original = [
+            '+1' => [
+                ['name' => 'first', 'keep' => 1],
+                ['name' => 'second', 'keep' => 2],
+            ],
+            '-1' => [
+                ['name' => 'other', 'keep' => 3],
+            ],
+        ];
+
+        $patch = JsonPatch::import([
+            ['op' => 'replace', 'path' => '/+1/1/name', 'value' => 'patched'],
+            ['op' => 'replace', 'path' => '/-1/0/name', 'value' => 'negative'],
+        ]);
+        $patch->setFlags(JsonPatch::TOLERATE_ASSOCIATIVE_ARRAYS);
+        $patch->apply($original);
+
+        $this->assertSame('patched', $original['+1'][1]['name']);
+        $this->assertSame('negative', $original['-1'][0]['name']);
+        $this->assertSame('first', $original['+1'][0]['name']);
+        $this->assertArrayNotHasKey(1, $original);
+    }
 }

@@ -120,6 +120,16 @@ class JsonPointer
                 }
             } else { // null or array
                 $intKey = filter_var($key, FILTER_VALIDATE_INT);
+
+                // Avoid PathException with objects like {"+1": ...}
+                $hasPlus = $intKey !== false &&
+                    is_string($key) &&
+                    $key !== '' &&
+                    $key[0] === '+';
+                if ($hasPlus) {
+                    $intKey = false;
+                }
+
                 if ($ref === null && (false === $intKey || $intKey !== 0)) {
                     $key = (string)$key;
                     if ($flags & self::RECURSIVE_KEY_CREATION) {
