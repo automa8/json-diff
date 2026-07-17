@@ -1,5 +1,5 @@
 {
-  "name": "swaggest/json-diff",
+  "name": "automa8/json-diff",
   "description": "JSON diff/rearrange/patch/pointer library for PHP",
   "type": "library",
   "license": "MIT",
